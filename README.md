@@ -94,7 +94,7 @@ Or manually:
 
 ```bash
 git clone https://github.com/tuoxiansp/fable-the-boss ~/fable-the-boss
-ln -s ~/fable-the-boss/skills/executor ~/.claude/skills/executor
+ln -s ~/fable-the-boss/skills/crew ~/.claude/skills/crew
 ```
 
 You also need at least one worker harness:
@@ -104,13 +104,13 @@ You also need at least one worker harness:
 
 ## Use
 
-Register execution units (per project; config lives in `.claude/executors.json`):
+Register execution units (per project; config lives in `.claude/crews.json`):
 
 ```
-/executor add codex
-/executor add cursor --model gpt-5.2
-/executor add codex --session <existing-session-id> --name reviewer
-/executor list
+/crew add codex
+/crew add cursor --model gpt-5.2
+/crew add codex --session <existing-session-id> --name reviewer
+/crew list
 ```
 
 Dispatch explicitly, in natural language:
