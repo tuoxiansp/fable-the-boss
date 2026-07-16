@@ -7,9 +7,12 @@ work to other coding harnesses — OpenAI Codex CLI, Cursor Agent — running as
 background processes. The boss assigns work, goes idle at zero cost, gets woken up
 when a worker finishes, reads the report, and rules: accept, iterate, or discard.
 
-The name is a nod to the model that bossed the first crew around. The skill itself
-is model-agnostic — any agent whose harness can run a background task and wake on
-its completion can be the boss.
+The name is a nod to Claude Fable 5, the model that bossed the first crew around —
+and the recommended boss. Orchestration is mostly decision-making in underdetermined
+spaces (vague reports, partial evidence, judgment calls with no spec), which is
+exactly what Fable 5 is unusually good at. The skill itself is model-agnostic — any
+agent whose harness can run a background task and wake on its completion can be the
+boss, and workers can be anything with a resumable headless CLI.
 
 ## Why
 
