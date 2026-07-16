@@ -89,11 +89,19 @@ Agent-Skills-standard harnesses):
 npx skills@latest add tuoxiansp/fable-the-boss
 ```
 
-Or manually:
+Or let your agent install it — paste this installer prompt:
 
-```bash
-git clone https://github.com/tuoxiansp/fable-the-boss ~/fable-the-boss
-ln -s ~/fable-the-boss/skills/crew ~/.claude/skills/crew
+```
+Install the "crew" agent skill from https://github.com/tuoxiansp/fable-the-boss :
+
+1. Clone the repo to ~/fable-the-boss (git pull instead if it already exists).
+2. Find the directory this harness loads agent skills from (Claude Code:
+   ~/.claude/skills/ for all projects, or .claude/skills/ in one project;
+   other harnesses have an equivalent — locate yours).
+3. Link the skill into it: ln -s ~/fable-the-boss/skills/crew <skills-dir>/crew
+   (copy the directory instead if symlinks don't work here).
+4. Verify the skill is picked up (its frontmatter name is "crew") and tell me
+   how to invoke it. Do not modify anything else.
 ```
 
 You also need at least one worker harness:
@@ -132,6 +140,14 @@ For each dispatched task the boss cuts a worktree, dispatches in the background,
 and yields. When the worker finishes you get the report and rule on it: accept
 (merge), iterate (same session, corrective feedback), or discard. Either way the
 worktree is destroyed.
+
+> [!TIP]
+> While the boss drives a worker session, that harness's own UI may not show live
+> updates: headless turns typically open with one short message and then work
+> silently through tool calls, so an app or TUI open on the same session can look
+> stalled while the worker is in fact deep in a task. Follow progress through the
+> boss's reports (or tail the dispatch's output stream) — and avoid driving the
+> same session from two places at once; session histories assume a single writer.
 
 ## Is your harness boss material?
 
