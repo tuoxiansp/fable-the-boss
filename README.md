@@ -26,27 +26,28 @@ underdetermined spaces — vague reports, partial evidence, judgment calls with 
 spec — which is exactly what Fable 5 is unusually good at, and exactly what the
 cheap majority of tokens doesn't need.
 
-## This skill: the same structure, across harnesses
+## This skill: the orchestrator pattern, across harnesses
 
-fable-the-boss reconstructs both patterns as a single agent skill — with the crew
-drawn from *other vendors' harnesses* instead of cheaper Claude models:
+fable-the-boss reconstructs the **orchestrator** pattern as an agent skill — with
+the crew drawn from *other vendors' harnesses* instead of cheaper Claude models.
+The boss (your agent) composes self-contained task prompts and dispatches them to
+long-lived worker sessions of OpenAI Codex CLI or Cursor Agent
+(`codex exec resume`, `cursor-agent --resume`), running as true background
+processes. The economics get more aggressive than the original: worker tokens are
+billed to each harness's own subscription, and the boss burns exactly zero tokens
+while waiting.
 
-- **Orchestrator** → the boss (your agent) composes self-contained task prompts and
-  dispatches them to long-lived worker sessions of OpenAI Codex CLI or Cursor Agent
-  (`codex exec resume`, `cursor-agent --resume`), running as true background
-  processes. The economics get more aggressive than the original: worker tokens are
-  billed to each harness's own subscription, and the boss burns exactly zero tokens
-  while waiting.
-- **Advisor** → the `NEED_ADVICE:` protocol. The official advisor is an inline tool
-  call; headless worker CLIs cannot call back mid-run, so this skill uses the
-  turn-boundary equivalent — the worker stops and reports what advice it needs, the
-  boss answers (escalating to you only what is genuinely yours to decide), and the
-  same session resumes.
+It is not the advisor pattern — there the main loop lives in the cheap executor and
+the strong model is a passive, on-demand tool call; here control stays top-down with
+the boss throughout. But the orchestrator borrows one advisor-shaped channel: the
+`NEED_ADVICE:` protocol. A worker may stop mid-task and report what advice it needs;
+the boss answers (escalating to you only what is genuinely yours to decide) and
+resumes the same session. From the worker's seat, the boss doubles as its advisor —
+the topology just never inverts.
 
-Where the official patterns require Claude models on both sides (the advisor tool
-is beta, with model-pair constraints), this skill only asks that the boss's harness
-can wake on background-task completion — the crew can come from any vendor, and you
-get to spend all your separate quotas in one place.
+Where the official pattern pairs Claude models on both sides, this skill only asks
+that the boss's harness can wake on background-task completion — the crew can come
+from any vendor, and you get to spend all your separate quotas in one place.
 
 ## How it works
 
@@ -210,9 +211,9 @@ back, it can still be a fine *worker*, just not the boss.
 
 ## The name
 
-A nod to Claude Fable 5 — the model whose usage patterns this skill reconstructs,
-the first model to boss this particular crew around, and the recommended boss. The
-skill itself is model-agnostic.
+A nod to Claude Fable 5 — the model whose orchestrator pattern this skill
+reconstructs, the first model to boss this particular crew around, and the
+recommended boss. The skill itself is model-agnostic.
 
 ## License
 
