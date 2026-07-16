@@ -1,6 +1,6 @@
 ---
 name: crew
-description: Register external coding harnesses (codex, cursor-agent) as background execution units, dispatch tasks to them in ephemeral per-task git worktrees, and review results. Use when the user invokes /crew, asks to register codex/cursor as a worker, or explicitly asks to delegate a task to codex or cursor.
+description: Register external coding harnesses (codex, cursor-agent) as background workers, dispatch tasks to them in ephemeral per-task git worktrees, and review results. Use when the user talks about the crew or delegating to codex/cursor, and proactively whenever a task is self-contained enough to hand to a background worker.
 ---
 
 # Crew — orchestrate external harnesses as background workers
@@ -19,8 +19,14 @@ report and either relay, re-dispatch, or escalate.
   codebase. When the result is merged or discarded, the worktree is destroyed. There is
   no "sync" step — freshness is guaranteed by construction.
 
-**Dispatch is always explicit**: only send a task to a worker when the user asks for
-it (e.g. "have cursor do X", "hand this to codex"). Never auto-delegate.
+**The boss dispatches on its own judgment.** Delegation is the default posture, not
+an exception: when a task is self-contained, long-running, parallelizable, or simply
+doesn't need the conversation's context, hand it to a worker and keep yourself free
+for judgment calls. Do it yourself only when the task is trivial, needs deep
+conversation context, or the user asked you to. The user can always direct traffic
+explicitly ("have cursor do X", "don't delegate this") and that overrides your
+judgment; when you delegate on your own initiative, say so in one line — who got
+what, and why.
 
 **Self-provisioning is delegated**: the orchestrator has standing authorization to
 create new execution units on its own — no session id or per-unit approval needed —
@@ -29,12 +35,21 @@ disjoint file surface, a dedicated reviewer, a scratch probe channel). Follow th
 same `add` procedure: session id starts `null` for codex (captured on first run) or
 via `create-chat` for cursor. Leave the model unset unless the user specifies one.
 Give each unit a clear name and a one-line `note` stating its lane/purpose. Mention
-newly created units in your status update. Creating units is free; dispatching work
-to them still follows the explicit rule above.
+newly created units in your status update.
 
-## Subcommands (parse from the skill args)
+## Operations
 
-### `add <harness> [--session <id>] [--model <model>] [--name <alias>]`
+All operations are invoked in natural language — there is no command syntax to
+learn. Map the user's intent to the procedures below. (Structured forms like
+`/crew add codex --model gpt-5.2` also work if the user prefers them; parse them
+with the same semantics.)
+
+### Register a worker
+
+> "take codex onto the crew" · "register cursor as a worker, use gpt-5.2" ·
+> "add my existing codex session abc123 as a reviewer"
+
+Equivalent structured form: `add <harness> [--session <id>] [--model <model>] [--name <alias>]`
 
 Register an execution unit for this project.
 
@@ -70,16 +85,25 @@ Register an execution unit for this project.
    (e.g. `displayName`, `note`). No worktree is created at registration — worktrees are
    per-task. Confirm registration to the user in one line, including the model in effect.
 
-### `list`
+### Show the crew
+
+> "who's on the crew?" · "crew status" · "any workers mid-task?"
+
 Read `.claude/crews.json`, show name / harness / model / session. Also run
 `git worktree list` and flag any leftover `crew/*` worktrees (orphans from
 interrupted tasks) with their dirty/unmerged state.
 
-### `remove <name>`
+### Let a worker go
+
+> "drop the reviewer from the crew" · "we don't need executor2 anymore"
+
 Delete the entry from the JSON. If a task worktree for this worker is still live,
 handle it as in "cleanup" below first.
 
-### `run <name> <task…>` — or a natural-language explicit dispatch
+### Dispatch a task
+
+> "have codex implement the retry logic and run the tests" (user-directed) ·
+> or your own call: any suitable task you decide to delegate, announced in one line
 
 Dispatch procedure:
 

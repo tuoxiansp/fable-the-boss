@@ -104,25 +104,31 @@ You also need at least one worker harness:
 
 ## Use
 
-Register execution units (per project; config lives in `.claude/crews.json`):
+Everything is natural language — there is no command syntax to learn.
 
-```
-/crew add codex
-/crew add cursor --model gpt-5.2
-/crew add codex --session <existing-session-id> --name reviewer
-/crew list
-```
+Build the crew (per project; the registry lives in `.claude/crews.json`):
 
-Dispatch explicitly, in natural language:
+> take codex onto the crew
+
+> register cursor as a worker, use gpt-5.2
+
+> add my existing codex session abc123 as a reviewer
+
+> who's on the crew?
+
+Then just work. **The boss delegates on its own judgment**: give it a goal, and it
+decides what to hand to the crew and what to do itself, announcing each dispatch in
+one line. It also provisions new workers when the work calls for a parallel lane.
+You can still direct traffic whenever you want:
 
 > have codex implement the retry logic in src/net/, run the tests, and commit
 
-The boss cuts a worktree, dispatches in the background, and yields. When the worker
-finishes you get the report and rule on it: accept (merge), iterate (same session,
-corrective feedback), or discard. Either way the worktree is destroyed.
+> don't delegate this one — do it yourself
 
-The boss may also create new units on its own when the work calls for a parallel
-lane — creating units is free, dispatching still requires your word.
+For each dispatched task the boss cuts a worktree, dispatches in the background,
+and yields. When the worker finishes you get the report and rule on it: accept
+(merge), iterate (same session, corrective feedback), or discard. Either way the
+worktree is destroyed.
 
 ## Is your harness boss material?
 
