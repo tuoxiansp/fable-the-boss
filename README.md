@@ -1,6 +1,6 @@
 # fable-the-boss
 
-Your agent as the boss. Codex and Cursor as the crew.
+Your agent as the boss. Codex, Cursor, and any headless coding agent as the crew.
 
 ## The pattern, straight from Anthropic
 
