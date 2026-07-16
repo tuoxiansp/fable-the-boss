@@ -7,11 +7,13 @@ Install: `curl https://cursor.com/install -fsS | bash`. Auth: `cursor-agent logi
 
 ```
 cursor-agent -p --output-format json --resume <chat-id> \
-  [--model <model>] --workspace <workdir> --trust --force --sandbox disabled "<prompt>"
+  [--model <model>] --workspace <workdir> --trust --auto-review "<prompt>"
 ```
 
 - `-p` (print) is headless mode; `--trust` skips the interactive workspace-trust
-  prompt; `--force` auto-approves commands.
+  prompt; `--auto-review` auto-runs tool calls a server classifier deems safe and
+  holds the rest — the worker should report anything held (`NEED_ADVICE:`) instead
+  of stalling.
 
 ## Sessions
 

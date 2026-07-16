@@ -68,10 +68,10 @@ sequenceDiagram
    `git diff --stat`——不读代码。质量由 worker 自己的验证(测试、构建)背书;
    老板做事实核对(报告与可观察的足迹是否相符),代码评审只在你开口时发生。
 
-3. **隔离靠 worktree,不靠 OS 沙箱。** worker 以完全权限运行
-   (`--dangerously-bypass-approvals-and-sandbox` / `--sandbox disabled`),因为
-   OS 沙箱会误伤正当工作——为测试起浏览器、进程控制、网络访问——而一次性
-   worktree 本来就限定了破坏半径。你的主工作区永远不被触碰。
+3. **受控自治,有界破坏半径。** worker 运行在各自 harness 的 auto-review 档位
+   (codex 用 `--sandbox workspace-write`,cursor 用 `--auto-review`):安全操作
+   无人值守放行,危险操作被拦下——被拦住的 worker 会停下汇报而不是干耗。一次性
+   worktree 在此之上再限定一层破坏半径;你的主工作区永远不被触碰。
 
 ## 安装
 

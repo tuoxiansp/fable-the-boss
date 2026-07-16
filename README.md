@@ -77,11 +77,11 @@ Three design principles:
    report match the observable footprint?), and code review happens only when you ask
    for it.
 
-3. **Isolation by worktree, not by OS sandbox.** Workers run with full access
-   (`--dangerously-bypass-approvals-and-sandbox` / `--sandbox disabled`) because OS
-   sandboxes break legitimate work — spawning browsers for test runners, process
-   control, network — while the disposable worktree already confines the blast
-   radius. Your main working tree is never touched.
+3. **Guarded autonomy, bounded blast radius.** Workers run in their harness's
+   auto-review tier (`--sandbox workspace-write` for codex, `--auto-review` for
+   cursor): safe actions run unattended, risky ones are held — and a held worker
+   reports back instead of stalling. The disposable worktree bounds the blast
+   radius on top of that; your main working tree is never touched.
 
 ## Install
 
