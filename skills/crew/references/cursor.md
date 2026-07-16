@@ -17,12 +17,15 @@ cursor-agent -p --output-format json --resume <chat-id> \
 
 ## Sessions
 
-- Mint a session id upfront with `cursor-agent create-chat`; it stays fixed for the
-  worker's lifetime and every dispatch resumes it with `--resume <chat-id>`.
+- Do **not** use `cursor-agent create-chat` — it hangs indefinitely in headless
+  contexts. Register with `session: null`, run the first dispatch without
+  `--resume`, and capture `session_id` from the result JSON; resume with it from
+  then on.
 
 ## Models
 
-- Enumerable: validate any requested model against `cursor-agent models`.
+- Enumerable: validate any requested model against `cursor-agent models` — exact
+  ids only (e.g. `cursor-grok-4.5-high-fast`, not "grok 4.5 high fast").
 
 ## Behavior notes
 
