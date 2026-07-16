@@ -1,12 +1,12 @@
 ---
 name: crew
-description: Register external coding harnesses (codex, cursor-agent) as background workers, dispatch tasks to them in ephemeral per-task git worktrees, and review results. Use when the user talks about the crew or delegating to codex/cursor, and proactively whenever a task is self-contained enough to hand to a background worker.
+description: Register external coding harnesses (e.g. codex, cursor-agent) as background workers, dispatch tasks to them in ephemeral per-task git worktrees, and review results. Use when the user talks about the crew or delegating to another harness, and proactively whenever a task is self-contained enough to hand to a background worker.
 ---
 
 # Crew — orchestrate external harnesses as background workers
 
 You are the orchestrator and always work on the main branch. External harnesses
-(codex, cursor-agent) run as **true background tasks**. After dispatching, END YOUR
+(e.g. codex, cursor-agent) run as **true background tasks**. After dispatching, END YOUR
 TURN — a completion notification will wake you; then you review the worker's report
 and either relay, re-dispatch, or escalate. Never poll or block on a worker.
 

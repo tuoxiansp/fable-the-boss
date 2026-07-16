@@ -24,8 +24,9 @@ cheap majority of tokens doesn't need.
 fable-the-boss reconstructs the **orchestrator** pattern as an agent skill — with
 the crew drawn from *other vendors' harnesses* instead of cheaper Claude models.
 The boss (your agent) composes self-contained task prompts and dispatches them to
-long-lived worker sessions of OpenAI Codex CLI or Cursor Agent
-(`codex exec resume`, `cursor-agent --resume`), running as true background
+long-lived worker sessions of other harnesses — OpenAI Codex CLI and Cursor Agent
+ship as built-in references (`codex exec resume`, `cursor-agent --resume`), and any
+harness with a resumable headless CLI can join the crew — running as true background
 processes. The economics get more aggressive than the original: worker tokens are
 billed to each harness's own subscription, and the boss burns exactly zero tokens
 while waiting.
