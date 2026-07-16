@@ -2,6 +2,13 @@
 
 Your agent as the boss. Codex and Cursor as the crew.
 
+<p>
+  <img src="https://pbs.twimg.com/media/HMp6DWEa4AE10vQ?format=jpg&name=medium" alt="Orchestrator pattern: Fable 5 plans and fans out to Sonnet 5 workers" width="49%">
+  <img src="https://pbs.twimg.com/media/HMp3rAEaAAAUpHe?format=jpg&name=medium" alt="Advisor pattern: a Sonnet 5 executor tool-calls Fable 5 for advice" width="49%">
+</p>
+
+<sub>Diagrams by Anthropic, from <a href="https://x.com/ClaudeDevs/status/2074606058128224365">the @ClaudeDevs thread</a> on the orchestrator and advisor patterns they use internally with Fable 5. This skill is a cross-harness reconstruction of both — see <a href="#prior-art">Prior art</a>.</sub>
+
 An agent skill that turns your coding agent into a task orchestrator which dispatches
 work to other coding harnesses — OpenAI Codex CLI, Cursor Agent — running as true
 background processes. The boss assigns work, goes idle at zero cost, gets woken up
@@ -53,28 +60,33 @@ sequenceDiagram
 The exposure surfaces, layer by layer:
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph L1["User surface"]
+        direction TB
         A1["/executor<br>add · list · remove"]
         A2["explicit dispatch<br>'have codex do X'"]
         A3["verdict<br>accept · iterate · discard"]
     end
     subgraph L2["Orchestrator"]
+        direction TB
         B1["SKILL.md<br>behavior contract"]
         B2["executors.json<br>unit registry"]
         B3["compose prompt<br>check report vs facts"]
     end
     subgraph L3["Scheduling"]
+        direction TB
         C1["background task"]
         C2["yield turn<br>no polling"]
         C3["wake on completion"]
     end
     subgraph L4["Execution units"]
+        direction TB
         D1["codex exec resume"]
         D2["cursor-agent --resume"]
         D3["long-lived session<br>memory across tasks"]
     end
     subgraph L5["Git isolation"]
+        direction TB
         E1["per-task worktree<br>cut from HEAD"]
         E2["branch<br>executor/name/task"]
         E3["merge or discard<br>then destroy"]
