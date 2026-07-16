@@ -1,3 +1,5 @@
+English | [简体中文](README.zh-CN.md)
+
 # fable-the-boss
 
 Your agent as the boss. Codex, Cursor, and any headless coding agent as the crew.
