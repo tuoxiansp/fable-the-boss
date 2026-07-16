@@ -108,6 +108,29 @@ Workers can also stop mid-task and ask for advice (`NEED_ADVICE:` protocol). The
 answers what it can and escalates to you only what is genuinely yours to decide:
 scope trade-offs, irreversible choices.
 
+## Prior art
+
+Anthropic's developer team [shared the two multi-agent patterns they use internally
+with Fable 5](https://x.com/ClaudeDevs/status/2074606058128224365): **orchestrator**
+(top-down — Fable 5 plans and delegates to cheaper workers; 96% of Fable-solo
+performance at 46% of the cost on BrowseComp) and **advisor** (bottom-up — an
+executor consults Fable 5 only at decision points; ~92% of Fable's SWE-bench Pro
+score at ~63% of the price, with roughly one consult per task).
+
+This skill is a cross-harness reconstruction of both patterns at once:
+
+- **Orchestrator** → the boss plans and dispatches; workers are external harnesses
+  instead of cheaper Claude models. The economics are more aggressive than the
+  original: worker tokens are billed to each harness's own subscription, and the
+  boss costs exactly zero while waiting.
+- **Advisor** → the `NEED_ADVICE:` protocol. The official advisor is an inline tool
+  call; headless worker CLIs cannot call back mid-run, so this skill uses the
+  turn-boundary equivalent — stop and report, boss answers, resume the session.
+
+And where the official patterns require Claude models on both sides (the advisor
+tool is beta, with model-pair constraints), this skill only asks that the boss's
+harness can wake on background-task completion — the crew can come from any vendor.
+
 ## Install
 
 Via [skills.sh](https://skills.sh) (installs into Claude Code, Codex, and other
