@@ -2,24 +2,17 @@
 
 Your agent as the boss. Codex and Cursor as the crew.
 
-## The patterns, straight from Anthropic
+## The pattern, straight from Anthropic
 
-Anthropic's developer team [shared the two multi-agent patterns they use internally
-with Claude Fable 5](https://x.com/ClaudeDevs/status/2074606058128224365):
+Anthropic's developer team [shared the multi-agent patterns they use internally
+with Claude Fable 5](https://x.com/ClaudeDevs/status/2074606058128224365). The one
+this skill builds on is the **orchestrator**: Fable 5 plans and delegates to cheaper
+workers, so most tokens are billed at the worker rate — 96% of Fable-solo
+performance at 46% of the cost on BrowseComp.
 
-<p>
-  <img src="https://pbs.twimg.com/media/HMp6DWEa4AE10vQ?format=jpg&name=medium" alt="Orchestrator pattern: Fable 5 plans and fans out to Sonnet 5 workers" width="49%">
-  <img src="https://pbs.twimg.com/media/HMp3rAEaAAAUpHe?format=jpg&name=medium" alt="Advisor pattern: a Sonnet 5 executor tool-calls Fable 5 for advice" width="49%">
-</p>
+<img src="https://pbs.twimg.com/media/HMp6DWEa4AE10vQ?format=jpg&name=medium" alt="Orchestrator pattern: Fable 5 plans and fans out to Sonnet 5 workers" width="75%">
 
-<sub>Diagrams by Anthropic, from the @ClaudeDevs thread.</sub>
-
-- **Orchestrator** (top-down): Fable 5 plans and delegates to cheaper workers; most
-  tokens are billed at the worker rate. 96% of Fable-solo performance at 46% of the
-  cost on BrowseComp.
-- **Advisor** (bottom-up): an executor consults Fable 5 only at decision points;
-  ~92% of Fable's SWE-bench Pro score at ~63% of the price, with roughly one consult
-  per task.
+<sub>Diagram by Anthropic, from the @ClaudeDevs thread.</sub>
 
 The economics work because orchestration is mostly decision-making in
 underdetermined spaces — vague reports, partial evidence, judgment calls with no
@@ -37,13 +30,9 @@ processes. The economics get more aggressive than the original: worker tokens ar
 billed to each harness's own subscription, and the boss burns exactly zero tokens
 while waiting.
 
-It is not the advisor pattern — there the main loop lives in the cheap executor and
-the strong model is a passive, on-demand tool call; here control stays top-down with
-the boss throughout. But the orchestrator borrows one advisor-shaped channel: the
-`NEED_ADVICE:` protocol. A worker may stop mid-task and report what advice it needs;
-the boss answers (escalating to you only what is genuinely yours to decide) and
-resumes the same session. From the worker's seat, the boss doubles as its advisor —
-the topology just never inverts.
+Delegation is not fire-and-forget: a worker may stop mid-task and report what advice
+it needs (the `NEED_ADVICE:` protocol); the boss answers — escalating to you only
+what is genuinely yours to decide — and resumes the same session.
 
 Where the official pattern pairs Claude models on both sides, this skill only asks
 that the boss's harness can wake on background-task completion — the crew can come
@@ -69,18 +58,6 @@ sequenceDiagram
     B->>U: relay report + change footprint
     U->>B: accept / iterate / discard
     B->>G: merge or drop, destroy worktree
-```
-
-The exposure surfaces, layer by layer:
-
-```mermaid
-flowchart TB
-    A["User surface — /executor add · list · remove &nbsp;|&nbsp; explicit dispatch &nbsp;|&nbsp; verdict: accept · iterate · discard"]
-    B["Orchestrator — SKILL.md behavior contract &nbsp;|&nbsp; executors.json registry &nbsp;|&nbsp; compose prompts, check reports vs facts"]
-    C["Scheduling — background task &nbsp;|&nbsp; yield turn, no polling &nbsp;|&nbsp; wake on completion"]
-    D["Execution units — codex exec resume &nbsp;|&nbsp; cursor-agent --resume &nbsp;|&nbsp; long-lived session memory"]
-    E["Git isolation — per-task worktree from HEAD &nbsp;|&nbsp; branch executor/name/task &nbsp;|&nbsp; merge or discard, then destroy"]
-    A --> B --> C --> D --> E
 ```
 
 Three design principles, each of which fell out of a real failure of the naive
