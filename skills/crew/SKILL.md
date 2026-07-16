@@ -76,9 +76,8 @@ same semantics.
 
 Register an execution unit for this project.
 
-1. Verify the harness binary exists (`which codex` / `which cursor-agent`). If missing,
-   offer to install it (e.g. `brew install codex`; `curl https://cursor.com/install -fsS | bash`
-   for cursor-agent) — login (`codex login` / `cursor-agent login`) is the user's step.
+1. Verify the harness binary exists; if it doesn't, sort that out with the user
+   (authentication is theirs to do).
 2. **Model validation:**
    - `cursor`: run `cursor-agent models`. If `--model` was given, check it appears in the
      list; if absent or invalid, show the list and let the user pick (use your harness's
