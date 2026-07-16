@@ -33,23 +33,46 @@ create new execution units on its own — no session id or per-unit approval nee
 whenever the work the user asked for calls for it (e.g. a parallel lane with a
 disjoint file surface, a dedicated reviewer, a scratch probe channel). Follow the
 same `add` procedure: session id starts `null` for codex (captured on first run) or
-via `create-chat` for cursor. Leave the model unset unless the user specifies one.
-Give each unit a clear name and a one-line `note` stating its lane/purpose. Mention
-newly created units in your status update.
+via `create-chat` for cursor. Pick the model from the `$policy` baseline (below);
+if no baseline covers the case, establish one first. Give each unit a clear name
+and a one-line `note` stating its lane/purpose. Mention newly created units in your
+status update.
+
+**Model baseline (`$policy`)**: self-provisioning only runs smoothly when there is
+an agreed answer to "which model, for what kind of work". The registry carries it
+under the reserved `$policy` key:
+
+```json
+{
+  "$policy": {
+    "codex": { "model": "gpt-5.3-codex", "strengths": "deep implementation, long autonomous runs" },
+    "cursor": { "model": "auto", "strengths": "quick mechanical edits, broad model menu" }
+  }
+}
+```
+
+- On first registration in a project (or the first time you need to self-provision
+  and find no `$policy`), establish the baseline with the user once: which model per
+  harness, and what kind of tasks they want routed to it. Persist it and don't ask
+  again.
+- Update `$policy` whenever the user expresses a lasting preference ("use the fast
+  model for mechanical stuff").
+- At dispatch time, match task character to `strengths` when choosing which worker
+  gets the job.
 
 ## Operations
 
-All operations are invoked in natural language — there is no command syntax to
-learn. Map the user's intent to the procedures below. (Structured forms like
-`/crew add codex --model gpt-5.2` also work if the user prefers them; parse them
-with the same semantics.)
+Arguments to `/crew` are free-form natural language: map the user's intent to the
+procedures below. Structured forms (`/crew add codex --model gpt-5.2`) carry the
+same semantics.
 
 ### Register a worker
 
-> "take codex onto the crew" · "register cursor as a worker, use gpt-5.2" ·
-> "add my existing codex session abc123 as a reviewer"
-
-Equivalent structured form: `add <harness> [--session <id>] [--model <model>] [--name <alias>]`
+```
+/crew take codex onto the crew
+/crew register cursor as a worker, use gpt-5.2
+/crew add my existing codex session abc123 as a reviewer
+```
 
 Register an execution unit for this project.
 
@@ -87,7 +110,10 @@ Register an execution unit for this project.
 
 ### Show the crew
 
-> "who's on the crew?" · "crew status" · "any workers mid-task?"
+```
+/crew who's on the crew?
+/crew any workers mid-task?
+```
 
 Read `.claude/crews.json`, show name / harness / model / session. Also run
 `git worktree list` and flag any leftover `crew/*` worktrees (orphans from
@@ -95,15 +121,20 @@ interrupted tasks) with their dirty/unmerged state.
 
 ### Let a worker go
 
-> "drop the reviewer from the crew" · "we don't need executor2 anymore"
+```
+/crew drop the reviewer from the crew
+```
 
 Delete the entry from the JSON. If a task worktree for this worker is still live,
 handle it as in "cleanup" below first.
 
 ### Dispatch a task
 
-> "have codex implement the retry logic and run the tests" (user-directed) ·
-> or your own call: any suitable task you decide to delegate, announced in one line
+```
+/crew have codex implement the retry logic and run the tests
+```
+
+— or your own call: any suitable task you decide to delegate, announced in one line.
 
 Dispatch procedure:
 

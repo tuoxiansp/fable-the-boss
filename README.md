@@ -60,8 +60,7 @@ sequenceDiagram
     B->>G: merge or drop, destroy worktree
 ```
 
-Three design principles, each of which fell out of a real failure of the naive
-design:
+Three design principles:
 
 1. **Session and workspace are decoupled.** A worker's session (its memory) is
    long-lived. Its workspace is a disposable git worktree created per task from the
@@ -104,26 +103,30 @@ You also need at least one worker harness:
 
 ## Use
 
-Everything is natural language — there is no command syntax to learn.
+`/crew` takes free-form natural language. Build the crew (per project; the registry
+lives in `.claude/crews.json`):
 
-Build the crew (per project; the registry lives in `.claude/crews.json`):
+```
+/crew take codex onto the crew
+/crew register cursor as a worker, use gpt-5.2
+/crew add my existing codex session abc123 as a reviewer
+/crew who's on the crew?
+```
 
-> take codex onto the crew
-
-> register cursor as a worker, use gpt-5.2
-
-> add my existing codex session abc123 as a reviewer
-
-> who's on the crew?
+On first registration the boss agrees a model baseline with you — which model per
+harness, and what kind of work suits it — stored in the registry's `$policy` key so
+later decisions don't need to re-ask.
 
 Then just work. **The boss delegates on its own judgment**: give it a goal, and it
 decides what to hand to the crew and what to do itself, announcing each dispatch in
-one line. It also provisions new workers when the work calls for a parallel lane.
-You can still direct traffic whenever you want:
+one line. It also provisions new workers (using the `$policy` baseline) when the
+work calls for a parallel lane. You can still direct traffic whenever you want:
 
-> have codex implement the retry logic in src/net/, run the tests, and commit
+```
+/crew have codex implement the retry logic in src/net/, run the tests, and commit
+```
 
-> don't delegate this one — do it yourself
+— or veto a delegation mid-conversation ("do this one yourself").
 
 For each dispatched task the boss cuts a worktree, dispatches in the background,
 and yields. When the worker finishes you get the report and rule on it: accept
