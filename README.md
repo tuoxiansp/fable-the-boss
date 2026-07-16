@@ -74,38 +74,13 @@ sequenceDiagram
 The exposure surfaces, layer by layer:
 
 ```mermaid
-flowchart LR
-    subgraph L1["User surface"]
-        direction TB
-        A1["/executor<br>add · list · remove"]
-        A2["explicit dispatch<br>'have codex do X'"]
-        A3["verdict<br>accept · iterate · discard"]
-    end
-    subgraph L2["Orchestrator"]
-        direction TB
-        B1["SKILL.md<br>behavior contract"]
-        B2["executors.json<br>unit registry"]
-        B3["compose prompt<br>check report vs facts"]
-    end
-    subgraph L3["Scheduling"]
-        direction TB
-        C1["background task"]
-        C2["yield turn<br>no polling"]
-        C3["wake on completion"]
-    end
-    subgraph L4["Execution units"]
-        direction TB
-        D1["codex exec resume"]
-        D2["cursor-agent --resume"]
-        D3["long-lived session<br>memory across tasks"]
-    end
-    subgraph L5["Git isolation"]
-        direction TB
-        E1["per-task worktree<br>cut from HEAD"]
-        E2["branch<br>executor/name/task"]
-        E3["merge or discard<br>then destroy"]
-    end
-    L1 --> L2 --> L3 --> L4 --> L5
+flowchart TB
+    A["User surface — /executor add · list · remove &nbsp;|&nbsp; explicit dispatch &nbsp;|&nbsp; verdict: accept · iterate · discard"]
+    B["Orchestrator — SKILL.md behavior contract &nbsp;|&nbsp; executors.json registry &nbsp;|&nbsp; compose prompts, check reports vs facts"]
+    C["Scheduling — background task &nbsp;|&nbsp; yield turn, no polling &nbsp;|&nbsp; wake on completion"]
+    D["Execution units — codex exec resume &nbsp;|&nbsp; cursor-agent --resume &nbsp;|&nbsp; long-lived session memory"]
+    E["Git isolation — per-task worktree from HEAD &nbsp;|&nbsp; branch executor/name/task &nbsp;|&nbsp; merge or discard, then destroy"]
+    A --> B --> C --> D --> E
 ```
 
 Three design principles, each of which fell out of a real failure of the naive
