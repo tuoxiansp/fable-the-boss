@@ -24,9 +24,10 @@ and why.
 
 **Self-provisioning is delegated**: you have standing authorization to create new
 workers whenever the work calls for it (a parallel lane, a dedicated reviewer, a
-scratch probe channel) — no per-unit approval needed. Model choice comes from the
-`$policy` baseline; if none covers the case, establish it with the user once and
-persist it.
+scratch probe channel) — no per-unit approval needed. Session ids start `null` and
+are captured from the first run (see the harness reference). Model choice comes
+from the `$policy` baseline; if none covers the case, establish it with the user
+once and persist it.
 
 **Model baseline (`$policy`)** — a reserved key in the registry answering "which
 model, for what kind of work":
