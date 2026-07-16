@@ -2,38 +2,51 @@
 
 Your agent as the boss. Codex and Cursor as the crew.
 
+## The patterns, straight from Anthropic
+
+Anthropic's developer team [shared the two multi-agent patterns they use internally
+with Claude Fable 5](https://x.com/ClaudeDevs/status/2074606058128224365):
+
 <p>
   <img src="https://pbs.twimg.com/media/HMp6DWEa4AE10vQ?format=jpg&name=medium" alt="Orchestrator pattern: Fable 5 plans and fans out to Sonnet 5 workers" width="49%">
   <img src="https://pbs.twimg.com/media/HMp3rAEaAAAUpHe?format=jpg&name=medium" alt="Advisor pattern: a Sonnet 5 executor tool-calls Fable 5 for advice" width="49%">
 </p>
 
-<sub>Diagrams by Anthropic, from <a href="https://x.com/ClaudeDevs/status/2074606058128224365">the @ClaudeDevs thread</a> on the orchestrator and advisor patterns they use internally with Fable 5. This skill is a cross-harness reconstruction of both — see <a href="#prior-art">Prior art</a>.</sub>
+<sub>Diagrams by Anthropic, from the @ClaudeDevs thread.</sub>
 
-An agent skill that turns your coding agent into a task orchestrator which dispatches
-work to other coding harnesses — OpenAI Codex CLI, Cursor Agent — running as true
-background processes. The boss assigns work, goes idle at zero cost, gets woken up
-when a worker finishes, reads the report, and rules: accept, iterate, or discard.
+- **Orchestrator** (top-down): Fable 5 plans and delegates to cheaper workers; most
+  tokens are billed at the worker rate. 96% of Fable-solo performance at 46% of the
+  cost on BrowseComp.
+- **Advisor** (bottom-up): an executor consults Fable 5 only at decision points;
+  ~92% of Fable's SWE-bench Pro score at ~63% of the price, with roughly one consult
+  per task.
 
-The name is a nod to Claude Fable 5, the model that bossed the first crew around —
-and the recommended boss. Orchestration is mostly decision-making in underdetermined
-spaces (vague reports, partial evidence, judgment calls with no spec), which is
-exactly what Fable 5 is unusually good at. The skill itself is model-agnostic — any
-agent whose harness can run a background task and wake on its completion can be the
-boss, and workers can be anything with a resumable headless CLI.
+The economics work because orchestration is mostly decision-making in
+underdetermined spaces — vague reports, partial evidence, judgment calls with no
+spec — which is exactly what Fable 5 is unusually good at, and exactly what the
+cheap majority of tokens doesn't need.
 
-## Why
+## This skill: the same structure, across harnesses
 
-Different harnesses have different strengths, different models, and separate usage
-quotas. This skill lets one agent session use them all as execution units while
-keeping a single point of judgment, and burning no tokens while they work:
+fable-the-boss reconstructs both patterns as a single agent skill — with the crew
+drawn from *other vendors' harnesses* instead of cheaper Claude models:
 
-- **The boss orchestrates** — composes self-contained task prompts, reviews reports,
-  merges or discards results, escalates real decisions to you.
-- **Workers execute** — each is a long-lived session of an external harness
-  (`codex exec resume`, `cursor-agent --resume`) that keeps its memory across tasks.
-- **True background execution** — dispatch uses the harness's background task
-  mechanism; the boss ends its turn after dispatching and is woken by a task
-  notification when the worker's process exits. No polling, no blocked turns.
+- **Orchestrator** → the boss (your agent) composes self-contained task prompts and
+  dispatches them to long-lived worker sessions of OpenAI Codex CLI or Cursor Agent
+  (`codex exec resume`, `cursor-agent --resume`), running as true background
+  processes. The economics get more aggressive than the original: worker tokens are
+  billed to each harness's own subscription, and the boss burns exactly zero tokens
+  while waiting.
+- **Advisor** → the `NEED_ADVICE:` protocol. The official advisor is an inline tool
+  call; headless worker CLIs cannot call back mid-run, so this skill uses the
+  turn-boundary equivalent — the worker stops and reports what advice it needs, the
+  boss answers (escalating to you only what is genuinely yours to decide), and the
+  same session resumes.
+
+Where the official patterns require Claude models on both sides (the advisor tool
+is beta, with model-pair constraints), this skill only asks that the boss's harness
+can wake on background-task completion — the crew can come from any vendor, and you
+get to spend all your separate quotas in one place.
 
 ## How it works
 
@@ -94,9 +107,8 @@ flowchart LR
     L1 --> L2 --> L3 --> L4 --> L5
 ```
 
-## Design
-
-Three principles, each of which fell out of a real failure of the naive design:
+Three design principles, each of which fell out of a real failure of the naive
+design:
 
 1. **Session and workspace are decoupled.** A worker's session (its memory) is
    long-lived. Its workspace is a disposable git worktree created per task from the
@@ -115,33 +127,6 @@ Three principles, each of which fell out of a real failure of the naive design:
    sandboxes break legitimate work — spawning browsers for test runners, process
    control, network — while the disposable worktree already confines the blast
    radius. Your main working tree is never touched.
-
-Workers can also stop mid-task and ask for advice (`NEED_ADVICE:` protocol). The boss
-answers what it can and escalates to you only what is genuinely yours to decide:
-scope trade-offs, irreversible choices.
-
-## Prior art
-
-Anthropic's developer team [shared the two multi-agent patterns they use internally
-with Fable 5](https://x.com/ClaudeDevs/status/2074606058128224365): **orchestrator**
-(top-down — Fable 5 plans and delegates to cheaper workers; 96% of Fable-solo
-performance at 46% of the cost on BrowseComp) and **advisor** (bottom-up — an
-executor consults Fable 5 only at decision points; ~92% of Fable's SWE-bench Pro
-score at ~63% of the price, with roughly one consult per task).
-
-This skill is a cross-harness reconstruction of both patterns at once:
-
-- **Orchestrator** → the boss plans and dispatches; workers are external harnesses
-  instead of cheaper Claude models. The economics are more aggressive than the
-  original: worker tokens are billed to each harness's own subscription, and the
-  boss costs exactly zero while waiting.
-- **Advisor** → the `NEED_ADVICE:` protocol. The official advisor is an inline tool
-  call; headless worker CLIs cannot call back mid-run, so this skill uses the
-  turn-boundary equivalent — stop and report, boss answers, resume the session.
-
-And where the official patterns require Claude models on both sides (the advisor
-tool is beta, with model-pair constraints), this skill only asks that the boss's
-harness can wake on background-task completion — the crew can come from any vendor.
 
 ## Install
 
@@ -163,6 +148,28 @@ You also need at least one worker harness:
 
 - [Codex CLI](https://developers.openai.com/codex/cli) — `brew install codex`, then `codex login`
 - [Cursor Agent](https://cursor.com/cli) — `curl https://cursor.com/install -fsS | bash`, then `cursor-agent login`
+
+## Use
+
+Register execution units (per project; config lives in `.claude/executors.json`):
+
+```
+/executor add codex
+/executor add cursor --model gpt-5.2
+/executor add codex --session <existing-session-id> --name reviewer
+/executor list
+```
+
+Dispatch explicitly, in natural language:
+
+> have codex implement the retry logic in src/net/, run the tests, and commit
+
+The boss cuts a worktree, dispatches in the background, and yields. When the worker
+finishes you get the report and rule on it: accept (merge), iterate (same session,
+corrective feedback), or discard. Either way the worktree is destroyed.
+
+The boss may also create new units on its own when the work calls for a parallel
+lane — creating units is free, dispatching still requires your word.
 
 ## Is your harness boss material?
 
@@ -201,27 +208,11 @@ If you get `STARTED_AND_YIELDING`, then ~3 minutes of silence, then
 the boss. If the agent blocks on the command, answers immediately, or never comes
 back, it can still be a fine *worker*, just not the boss.
 
-## Use
+## The name
 
-Register execution units (per project; config lives in `.claude/executors.json`):
-
-```
-/executor add codex
-/executor add cursor --model gpt-5.2
-/executor add codex --session <existing-session-id> --name reviewer
-/executor list
-```
-
-Dispatch explicitly, in natural language:
-
-> have codex implement the retry logic in src/net/, run the tests, and commit
-
-The boss cuts a worktree, dispatches in the background, and yields. When the worker
-finishes you get the report and rule on it: accept (merge), iterate (same session,
-corrective feedback), or discard. Either way the worktree is destroyed.
-
-The boss may also create new units on its own when the work calls for a parallel
-lane — creating units is free, dispatching still requires your word.
+A nod to Claude Fable 5 — the model whose usage patterns this skill reconstructs,
+the first model to boss this particular crew around, and the recommended boss. The
+skill itself is model-agnostic.
 
 ## License
 
