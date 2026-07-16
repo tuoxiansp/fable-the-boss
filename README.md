@@ -89,19 +89,11 @@ Agent-Skills-standard harnesses):
 npx skills@latest add tuoxiansp/fable-the-boss
 ```
 
-Or let your agent install it — paste this installer prompt:
+Or let your agent install it — paste this:
 
 ```
-Install the "crew" agent skill from https://github.com/tuoxiansp/fable-the-boss :
-
-1. Clone the repo to ~/fable-the-boss (git pull instead if it already exists).
-2. Find the directory this harness loads agent skills from (Claude Code:
-   ~/.claude/skills/ for all projects, or .claude/skills/ in one project;
-   other harnesses have an equivalent — locate yours).
-3. Link the skill into it: ln -s ~/fable-the-boss/skills/crew <skills-dir>/crew
-   (copy the directory instead if symlinks don't work here).
-4. Verify the skill is picked up (its frontmatter name is "crew") and tell me
-   how to invoke it. Do not modify anything else.
+Install the "crew" agent skill from https://github.com/tuoxiansp/fable-the-boss
+(it lives at skills/crew in that repo).
 ```
 
 ## Use
