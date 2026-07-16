@@ -104,11 +104,6 @@ Install the "crew" agent skill from https://github.com/tuoxiansp/fable-the-boss 
    how to invoke it. Do not modify anything else.
 ```
 
-You also need at least one worker harness:
-
-- [Codex CLI](https://developers.openai.com/codex/cli) — `brew install codex`, then `codex login`
-- [Cursor Agent](https://cursor.com/cli) — `curl https://cursor.com/install -fsS | bash`, then `cursor-agent login`
-
 ## Use
 
 `/crew` takes free-form natural language. Build the crew (per project; the registry
