@@ -114,13 +114,13 @@ Via [skills.sh](https://skills.sh) (installs into Claude Code, Codex, and other
 Agent-Skills-standard harnesses):
 
 ```bash
-npx skills@latest add b1ncer/fable-the-boss
+npx skills@latest add tuoxiansp/fable-the-boss
 ```
 
 Or manually:
 
 ```bash
-git clone https://github.com/b1ncer/fable-the-boss ~/fable-the-boss
+git clone https://github.com/tuoxiansp/fable-the-boss ~/fable-the-boss
 ln -s ~/fable-the-boss/skills/executor ~/.claude/skills/executor
 ```
 
