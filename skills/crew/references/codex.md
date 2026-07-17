@@ -10,11 +10,19 @@ codex exec --json -C <workdir> --sandbox workspace-write \
 ```
 
 - Flags must come **before** the `resume` subcommand.
-- `workspace-write` auto-runs writes inside the workspace and blocks the rest.
-  Network is blocked by default — add `-c sandbox_workspace_write.network_access=true`
-  when the task needs it. Known rough edge: heavy test runners doing process
-  control (e.g. Playwright killing a browser) can hit `EPERM`; have the worker
-  report it as unverified rather than fight the sandbox.
+- **Honest mapping note**: codex has no auto-review tier in headless mode.
+  Interactive codex has an approval channel (`--ask-for-approval`, and the desktop
+  app's "approve for me"), but `codex exec` exposes none — escalations just fail
+  back to the model. `workspace-write` is therefore a *rule-based approximation*:
+  writes inside the workspace auto-run, everything else is blocked outright.
+  Surface this to the user when it matters.
+- Network is blocked by default — add `-c sandbox_workspace_write.network_access=true`
+  when the task needs it.
+- Child processes inherit the sandbox: GUI work (e.g. launching Chrome for tests)
+  starts but crashes with error dialogs. Lanes that need GUI/process control don't
+  fit the rules — ask the user whether to run that lane with
+  `--dangerously-bypass-approvals-and-sandbox` (worktree remains the boundary) or
+  report the step as unverified.
 - `--json` streams JSONL events to stdout; `-o` writes the final message to a file —
   read that file on wake instead of parsing the stream.
 - Long prompts: pass `-` and pipe via stdin.
