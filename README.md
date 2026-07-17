@@ -77,11 +77,12 @@ Three design principles:
    report match the observable footprint?), and code review happens only when you ask
    for it.
 
-3. **Guarded autonomy, bounded blast radius.** Workers run in their harness's
-   auto-review tier (`--sandbox workspace-write` for codex, `--auto-review` for
-   cursor): safe actions run unattended, risky ones are held — and a held worker
-   reports back instead of stalling. The disposable worktree bounds the blast
-   radius on top of that; your main working tree is never touched.
+3. **Guarded autonomy, bounded blast radius.** Workers run at the strongest
+   reviewed tier their harness offers headless (cursor: `--auto-review`, a
+   classifier auto-runs safe calls and holds the rest; codex: full access for
+   now, since headless `codex exec` has no approval channel — a per-call
+   approval broker is tracked in issue #1). The disposable worktree bounds the
+   blast radius in every case; your main working tree is never touched.
 
 ## Install
 

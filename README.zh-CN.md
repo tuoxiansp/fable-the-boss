@@ -68,10 +68,11 @@ sequenceDiagram
    `git diff --stat`——不读代码。质量由 worker 自己的验证(测试、构建)背书;
    老板做事实核对(报告与可观察的足迹是否相符),代码评审只在你开口时发生。
 
-3. **受控自治,有界破坏半径。** worker 运行在各自 harness 的 auto-review 档位
-   (codex 用 `--sandbox workspace-write`,cursor 用 `--auto-review`):安全操作
-   无人值守放行,危险操作被拦下——被拦住的 worker 会停下汇报而不是干耗。一次性
-   worktree 在此之上再限定一层破坏半径;你的主工作区永远不被触碰。
+3. **受控自治,有界破坏半径。** worker 运行在各自 harness headless 模式下所能
+   提供的最强审查档位(cursor:`--auto-review`,分类器自动放行安全调用、扣住
+   其余;codex:暂为完全权限——headless 的 `codex exec` 没有审批通道,逐调用
+   审批经纪人在 issue #1 跟踪)。无论哪种,一次性 worktree 都限定着破坏半径;
+   你的主工作区永远不被触碰。
 
 ## 安装
 
