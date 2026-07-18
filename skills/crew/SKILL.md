@@ -57,7 +57,9 @@ Arguments to `/crew` are free-form natural language; structured forms
 /crew add my existing codex session abc123 as a reviewer
 ```
 
-Registry: `.claude/crews.json` at the project root, one entry per worker with
+Registry: `.claude/crews.json` at the project root — the root of the repo the
+crew will work **on**, which is not necessarily the session's cwd; when they
+differ, confirm which project the user means. One entry per worker with
 `harness`, `model`, `session`, `created`. Preserve extra fields the user added by
 hand. No worktree is created at registration — worktrees are per-task.
 
