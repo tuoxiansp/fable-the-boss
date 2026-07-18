@@ -126,6 +126,18 @@ Install the "crew" agent skill from https://github.com/tuoxiansp/fable-the-boss
 > (或 tail 派发任务的输出流)跟进进度——并且不要从两个入口同时驱动同一个
 > session:session 历史是单写者假设。
 
+## 实时总控台
+
+派发在设计上是静默的——所以 skill 内置了一个本地网页总控台,把你所有项目的整支
+施工队放在一页里看。每次派发会顺手跑一条幂等命令(`crew-console watch <项目>`):
+把项目纳入监控,总控进程不在就自动拉起;打开 `http://127.0.0.1:7317/` 即可看到
+每个 worker 的阶段、当前动作和最近事件,实时刷新。
+
+如何观察一个 worker 由按 harness 划分的 **provider** 决定(`console/providers/`)。
+内置覆盖 codex(读派发流,兜底读它的 session 文件——所以在别处驱动的 session 也
+看得到)和 cursor;项目可在 `.claude/crew-providers/` 覆盖或新增,接入新 harness
+时也可以让你的 agent 现写一个。
+
 ## 你的 harness 有老板命吗?
 
 当老板只需要一种能力:后台启动进程、结束回合、进程退出时被唤醒。把这段探针

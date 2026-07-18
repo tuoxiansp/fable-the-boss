@@ -140,6 +140,20 @@ worktree is destroyed.
 > boss's reports (or tail the dispatch's output stream) — and avoid driving the
 > same session from two places at once; session histories assume a single writer.
 
+## Live console
+
+Dispatches are silent by design — so the skill ships a local web console to watch
+the whole crew, across all your projects, in one page. Every dispatch runs one
+idempotent command (`crew-console watch <project>`) that enrolls the project and
+auto-starts the console daemon if needed; open `http://127.0.0.1:7317/` to see each
+worker's phase, current activity, and recent events, updating live.
+
+How a worker is observed is a per-harness **provider** (`console/providers/`).
+Built-ins cover codex (dispatch stream, falling back to its session files — so even
+externally driven sessions are visible) and cursor; a project can override or add
+providers in `.claude/crew-providers/`, and your agent can write one when adopting
+a new harness.
+
 ## Is your harness boss material?
 
 The boss side needs exactly one capability: start a process in the background, end
